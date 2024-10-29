@@ -1,4 +1,4 @@
-module JWTGoCrack
+module JWT-Brute-Force-Tool
 
 go 1.23.2
 
