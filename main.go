@@ -34,7 +34,7 @@ func main() {
 		fmt.Println()
 		fmt.Println("  genWithSecret      - 使用指定密钥生成签名的 JWT。使用参数:")
 		fmt.Println("                       --payload <JSON字符串> 设置 JWT 的有效载荷。")
-		fmt.Println("                       --secret <密钥> 使用的密钥。")
+		fmt.Println("                       --secret <密钥> 用于加密 JWT 的密钥。")
 		fmt.Println()
 		fmt.Println("  crack              - 使用字典文件破解已签名的 JWT 密钥。使用参数:")
 		fmt.Println("                       --token <JWT> 要破解的 JWT。")
@@ -54,10 +54,10 @@ func main() {
 	switch os.Args[1] {
 	case "gen":
 		genCmd := flag.NewFlagSet("gen", flag.ExitOnError)
-		genCmd.StringVar(&payload, "payload", "", "生成 JWT 的 JSON 字符串")
+		genCmd.StringVar(&payload, "payload", "", "设置 JWT 的有效载荷")
 		genCmd.Parse(os.Args[2:])
 		if payload == "" {
-			fmt.Println("请提供 JSON 字符串 (-payload)")
+			fmt.Println("请提供 JWT 的有效载荷 (-payload)")
 			genCmd.Usage()
 			os.Exit(1)
 		}
@@ -65,11 +65,11 @@ func main() {
 
 	case "genWithSecret":
 		genWithSecretCmd := flag.NewFlagSet("genWithSecret", flag.ExitOnError)
-		genWithSecretCmd.StringVar(&payload, "payload", "", "生成 JWT 的 JSON 字符串")
+		genWithSecretCmd.StringVar(&payload, "payload", "", "设置 JWT 的有效载荷")
 		genWithSecretCmd.StringVar(&secret, "secret", "", "用于加密 JWT 的密钥")
 		genWithSecretCmd.Parse(os.Args[2:])
 		if payload == "" || secret == "" {
-			fmt.Println("请提供 JSON 字符串 (-payload) 和密钥 (-secret)")
+			fmt.Println("请提供 JWT 的有效载荷 (-payload) 和密钥 (-secret)")
 			genWithSecretCmd.Usage()
 			os.Exit(1)
 		}
