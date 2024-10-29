@@ -12,7 +12,13 @@ jobs:
     strategy:
       matrix:
         os: [linux, windows, darwin]  # OS 列表
-        arch: [amd64, arm64, 386, arm, riscv64, loong64] # ARCH 列表
+        arch:
+          # 只为 Linux 提供所有架构
+          - linux: [amd64, arm64, 386, arm, riscv64, loong64]
+          # 为 Windows 提供支持的架构
+          - windows: [amd64, arm64, 386]
+          # 为 macOS 提供支持的架构
+          - darwin: [amd64, arm64]
 
     steps:
       - name: Checkout code
@@ -24,7 +30,14 @@ jobs:
           go-version: '1.17'  # 设置 Go 版本
 
       - name: Build
-        run: GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o myapp-${{ matrix.os }}-${{ matrix.arch }}
+        run: |
+          if [[ "${{ matrix.os }}" == "linux" ]]; then
+            GOOS=linux GOARCH=${{ matrix.arch }} go build -o myapp-linux-${{ matrix.arch }}
+          elif [[ "${{ matrix.os }}" == "windows" ]]; then
+            GOOS=windows GOARCH=${{ matrix.arch }} go build -o myapp-windows-${{ matrix.arch }}.exe
+          elif [[ "${{ matrix.os }}" == "darwin" ]]; then
+            GOOS=darwin GOARCH=${{ matrix.arch }} go build -o myapp-darwin-${{ matrix.arch }}
+          fi
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -42,6 +55,5 @@ jobs:
             myapp-windows-386.exe
             myapp-darwin-amd64
             myapp-darwin-arm64
-            myapp-darwin-386
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub Token 进行认证
