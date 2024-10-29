@@ -28,7 +28,26 @@ var (
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("用法: go run main.go <command> [options]")
-		fmt.Println("可用命令: gen, genWithSecret, crack, brute")
+		fmt.Println("可用命令:")
+		fmt.Println("  gen                - 生成不使用密钥签名的 JWT。使用参数:")
+		fmt.Println("                       --payload <JSON字符串> 设置 JWT 的有效载荷。")
+		fmt.Println()
+		fmt.Println("  genWithSecret      - 使用指定密钥生成签名的 JWT。使用参数:")
+		fmt.Println("                       --payload <JSON字符串> 设置 JWT 的有效载荷。")
+		fmt.Println("                       --secret <密钥> 使用的密钥。")
+		fmt.Println()
+		fmt.Println("  crack              - 使用字典文件破解已签名的 JWT 密钥。使用参数:")
+		fmt.Println("                       --token <JWT> 要破解的 JWT。")
+		fmt.Println("                       --dict <字典文件> 密码字典文件路径。")
+		fmt.Println()
+		fmt.Println("  brute              - 使用暴力破解法尝试破解 JWT 密钥。使用参数:")
+		fmt.Println("                       --token <JWT> 要破解的 JWT。")
+		fmt.Println("                       --minLen <最小密钥长度> 设置最小密钥长度。")
+		fmt.Println("                       --maxLen <最大密钥长度> 设置最大密钥长度。")
+		fmt.Println("                       --charset <字符集> 使用的字符集。")
+		fmt.Println("                       --threads <线程数> 设置线程数（0 表示使用所有可用核心）。")
+		fmt.Println()
+		fmt.Println("例如： go run main.go gen --payload '{\"user\":\"admin\"}'")
 		os.Exit(1)
 	}
 
