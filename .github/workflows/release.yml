@@ -27,7 +27,11 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: '1.23'  # 设置 Go 版本
+          go-version: '1.17'  # 设置 Go 版本
+
+      - name: Install dependencies
+        run: |
+          go get github.com/golang-jwt/jwt/v5  # 获取 JWT 依赖
 
       - name: Build
         run: |
