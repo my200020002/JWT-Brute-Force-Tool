@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*' # 只有推送符合版本格式的标签（例如 v1.0.0）时才会触发
+      - 'v*' # Only trigger on tags like v1.0.0
 
 jobs:
   build:
@@ -20,15 +20,15 @@ jobs:
           - riscv64
       exclude:
         - os: macos-latest
-          arch: arm # macOS不支持arm架构
+          arch: arm # macOS does not support arm
         - os: macos-latest
-          arch: loong64 # macOS不支持loong64架构
+          arch: loong64 # macOS does not support loong64
         - os: macos-latest
-          arch: riscv64 # macOS不支持riscv64架构
+          arch: riscv64 # macOS does not support riscv64
         - os: windows-latest
-          arch: loong64 # Windows不支持loong64架构
+          arch: loong64 # Windows does not support loong64
         - os: windows-latest
-          arch: riscv64 # Windows不支持riscv64架构
+          arch: riscv64 # Windows does not support riscv64
 
     steps:
       - name: Checkout code
@@ -37,7 +37,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.23' # 设置需要的Go版本
+          go-version: '1.20' # Specify the Go version
 
       - name: Build binaries
         env:
