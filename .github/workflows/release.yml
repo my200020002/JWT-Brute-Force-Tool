@@ -23,9 +23,6 @@ jobs:
         with:
           go-version: '1.23'  # 设置 Go 版本
 
-      - name: Install dependencies
-        run: go mod tidy  # 确保所有依赖已正确安装
-
       - name: Build
         run: |
           if [[ "${{ matrix.os }}" == "linux" ]]; then
@@ -36,10 +33,13 @@ jobs:
             GOOS=darwin GOARCH=${{ matrix.arch }} go build -o jwt-brute-force-tool-darwin-${{ matrix.arch }}
           fi
 
+      - name: List files
+        run: ls -al  # 列出构建目录下的文件，调试用
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag: ${{ github.ref }}  # 使用当前推送的标签
+          tag_name: ${{ github.ref }}  # 使用当前推送的标签
           files: |
             jwt-brute-force-tool-linux-amd64
             jwt-brute-force-tool-linux-arm64
