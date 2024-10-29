@@ -1,8 +1,4 @@
-以下是一个详细的 `README` 文档，可以帮助用户了解如何使用该程序：
-
----
-
-# JWT Brute Force Tool
+# JWT-Brute-Force-Tool
 
 此项目是一个用于生成、破解和暴力破解 JSON Web Token (JWT) 的工具。该工具支持多线程优化，可以使用字典文件进行破解或使用暴力破解模式尝试所有可能的字符组合。
 
