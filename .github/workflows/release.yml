@@ -32,16 +32,16 @@ jobs:
       - name: Build
         run: |
           if [[ "${{ matrix.os }}" == "linux" ]]; then
-            for arch in ${{ matrix.arch }}; do
-              GOOS=linux GOARCH=$arch go build -o myapp-linux-$arch
+            for arch in amd64 arm64 386 arm riscv64 loong64; do
+              GOOS=linux GOARCH=$arch go build -o jwt-brute-force-tool-linux-$arch
             done
           elif [[ "${{ matrix.os }}" == "windows" ]]; then
-            for arch in ${{ matrix.arch }}; do
-              GOOS=windows GOARCH=$arch go build -o myapp-windows-$arch.exe
+            for arch in amd64 arm64 386; do
+              GOOS=windows GOARCH=$arch go build -o jwt-brute-force-tool-windows-$arch.exe
             done
           elif [[ "${{ matrix.os }}" == "darwin" ]]; then
-            for arch in ${{ matrix.arch }}; do
-              GOOS=darwin GOARCH=$arch go build -o myapp-darwin-$arch
+            for arch in amd64 arm64; do
+              GOOS=darwin GOARCH=$arch go build -o jwt-brute-force-tool-darwin-$arch
             done
           fi
 
@@ -50,16 +50,16 @@ jobs:
         with:
           tag: ${{ github.ref }}  # 使用当前推送的标签
           files: |
-            myapp-linux-amd64
-            myapp-linux-arm64
-            myapp-linux-386
-            myapp-linux-arm
-            myapp-linux-riscv64
-            myapp-linux-loong64
-            myapp-windows-amd64.exe
-            myapp-windows-arm64.exe
-            myapp-windows-386.exe
-            myapp-darwin-amd64
-            myapp-darwin-arm64
+            jwt-brute-force-tool-linux-amd64
+            jwt-brute-force-tool-linux-arm64
+            jwt-brute-force-tool-linux-386
+            jwt-brute-force-tool-linux-arm
+            jwt-brute-force-tool-linux-riscv64
+            jwt-brute-force-tool-linux-loong64
+            jwt-brute-force-tool-windows-amd64.exe
+            jwt-brute-force-tool-windows-arm64.exe
+            jwt-brute-force-tool-windows-386.exe
+            jwt-brute-force-tool-darwin-amd64
+            jwt-brute-force-tool-darwin-arm64
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub Token 进行认证
