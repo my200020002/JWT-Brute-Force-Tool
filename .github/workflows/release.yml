@@ -3,80 +3,46 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*' # 只有推送符合版本格式的标签（例如 v1.0.0）时才会触发
+      - 'v*.*.*'  # 当推送符合版本标签的代码时触发
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 运行环境
+
     strategy:
       matrix:
-        os_arch:
-          - os: ubuntu-latest
-            arch: [amd64, arm64, arm, '386', loong64, riscv64]
-          - os: macos-latest
-            arch: [amd64, arm64]
-          - os: windows-latest
-            arch: [amd64, arm64, arm, '386']
+        os: [linux, windows, darwin]  # OS 列表
+        arch: [amd64, arm64]           # 支持的架构
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2  # 检出代码
 
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v2
         with:
-          go-version: '1.23' # 设置需要的Go版本
+          go-version: '1.23'  # 设置 Go 版本
 
-      - name: Build binaries
-        env:
-          GOARCH: ${{ matrix.os_arch.arch }}
-          GOOS: ${{ matrix.os_arch.os == 'ubuntu-latest' && 'linux' || matrix.os_arch.os == 'macos-latest' && 'darwin' || 'windows' }}
+      - name: Build
         run: |
-          output_dir="dist/${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}"
-          mkdir -p "$output_dir"
-          go build -o "$output_dir/jwt_tool" .
-
-      - name: Archive binaries
-        if: always()
-        run: |
-          cd dist
-          zip -r "${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}.zip" "${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}"
-
-      - name: Upload Release Assets
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}
-          path: dist/${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}.zip
-
-  release:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          path: dist
+          if [[ "${{ matrix.os }}" == "linux" ]]; then
+            GOOS=linux GOARCH=${{ matrix.arch }} go build -o jwt-brute-force-tool-linux-${{ matrix.arch }}
+          elif [[ "${{ matrix.os }}" == "windows" ]]; then
+            GOOS=windows GOARCH=${{ matrix.arch }} go build -o jwt-brute-force-tool-windows-${{ matrix.arch }}.exe
+          elif [[ "${{ matrix.os }}" == "darwin" ]]; then
+            GOOS=darwin GOARCH=${{ matrix.arch }} go build -o jwt-brute-force-tool-darwin-${{ matrix.arch }}
+          fi
 
       - name: Create Release
-        id: release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          body: |
-            **Automated Release**
-            - Version: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          generate_release_notes: true
+          tag: ${{ github.ref }}  # 使用当前推送的标签
+          files: |
+            jwt-brute-force-tool-linux-amd64
+            jwt-brute-force-tool-linux-arm64
+            jwt-brute-force-tool-windows-amd64.exe
+            jwt-brute-force-tool-windows-arm64.exe
+            jwt-brute-force-tool-darwin-amd64
+            jwt-brute-force-tool-darwin-arm64
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1
-        with:
-          name: ${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}.zip
-          release_id: ${{ steps.release.outputs.id }}
-          asset_path: dist/${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}.zip
-          asset_content_type: application/zip
-
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub Token 进行认证
