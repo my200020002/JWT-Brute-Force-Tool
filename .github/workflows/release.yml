@@ -3,32 +3,20 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*' # Only trigger on tags like v1.0.0
+      - 'v*' # 只有推送符合版本格式的标签（例如 v1.0.0）时才会触发
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        arch:
-          - amd64
-          - arm64
-          - arm
-          - '386'
-          - loong64
-          - riscv64
-      exclude:
-        - os: macos-latest
-          arch: arm # macOS does not support arm
-        - os: macos-latest
-          arch: loong64 # macOS does not support loong64
-        - os: macos-latest
-          arch: riscv64 # macOS does not support riscv64
-        - os: windows-latest
-          arch: loong64 # Windows does not support loong64
-        - os: windows-latest
-          arch: riscv64 # Windows does not support riscv64
+        os_arch:
+          - os: ubuntu-latest
+            arch: [amd64, arm64, arm, '386', loong64, riscv64]
+          - os: macos-latest
+            arch: [amd64, arm64]
+          - os: windows-latest
+            arch: [amd64, arm64, arm, '386']
 
     steps:
       - name: Checkout code
@@ -37,14 +25,14 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.20' # Specify the Go version
+          go-version: '1.23' # 设置需要的Go版本
 
       - name: Build binaries
         env:
-          GOARCH: ${{ matrix.arch }}
-          GOOS: ${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'darwin' || 'windows' }}
+          GOARCH: ${{ matrix.os_arch.arch }}
+          GOOS: ${{ matrix.os_arch.os == 'ubuntu-latest' && 'linux' || matrix.os_arch.os == 'macos-latest' && 'darwin' || 'windows' }}
         run: |
-          output_dir="dist/${{ matrix.os }}_${{ matrix.arch }}"
+          output_dir="dist/${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}"
           mkdir -p "$output_dir"
           go build -o "$output_dir/jwt_tool" .
 
@@ -52,13 +40,13 @@ jobs:
         if: always()
         run: |
           cd dist
-          zip -r "${{ matrix.os }}_${{ matrix.arch }}.zip" "${{ matrix.os }}_${{ matrix.arch }}"
+          zip -r "${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}.zip" "${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}"
 
       - name: Upload Release Assets
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.os }}_${{ matrix.arch }}
-          path: dist/${{ matrix.os }}_${{ matrix.arch }}.zip
+          name: ${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}
+          path: dist/${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}.zip
 
   release:
     runs-on: ubuntu-latest
@@ -87,8 +75,8 @@ jobs:
       - name: Upload Release Assets
         uses: actions/upload-release-asset@v1
         with:
-          name: ${{ matrix.os }}_${{ matrix.arch }}.zip
+          name: ${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}.zip
           release_id: ${{ steps.release.outputs.id }}
-          asset_path: dist/${{ matrix.os }}_${{ matrix.arch }}.zip
+          asset_path: dist/${{ matrix.os_arch.os }}_${{ matrix.os_arch.arch }}.zip
           asset_content_type: application/zip
 
