@@ -12,8 +12,8 @@ jobs:
     strategy:
       matrix:
         os: [linux, windows, darwin]  # OS 列表
-        arch:
-          # 只为 Linux 提供所有架构
+        arch: 
+          # 为 Linux 提供所有支持的架构
           - linux: [amd64, arm64, 386, arm, riscv64, loong64]
           # 为 Windows 提供支持的架构
           - windows: [amd64, arm64, 386]
@@ -32,11 +32,17 @@ jobs:
       - name: Build
         run: |
           if [[ "${{ matrix.os }}" == "linux" ]]; then
-            GOOS=linux GOARCH=${{ matrix.arch }} go build -o myapp-linux-${{ matrix.arch }}
+            for arch in ${{ matrix.arch }}; do
+              GOOS=linux GOARCH=$arch go build -o myapp-linux-$arch
+            done
           elif [[ "${{ matrix.os }}" == "windows" ]]; then
-            GOOS=windows GOARCH=${{ matrix.arch }} go build -o myapp-windows-${{ matrix.arch }}.exe
+            for arch in ${{ matrix.arch }}; do
+              GOOS=windows GOARCH=$arch go build -o myapp-windows-$arch.exe
+            done
           elif [[ "${{ matrix.os }}" == "darwin" ]]; then
-            GOOS=darwin GOARCH=${{ matrix.arch }} go build -o myapp-darwin-${{ matrix.arch }}
+            for arch in ${{ matrix.arch }}; do
+              GOOS=darwin GOARCH=$arch go build -o myapp-darwin-$arch
+            done
           fi
 
       - name: Create Release
