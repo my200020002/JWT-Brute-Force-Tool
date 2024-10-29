@@ -1,0 +1,47 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # 当推送符合版本标签的代码时触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 运行环境
+
+    strategy:
+      matrix:
+        os: [linux, windows, darwin]  # OS 列表
+        arch: [amd64, arm64, 386, arm, riscv64, loong64] # ARCH 列表
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # 检出代码
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.17'  # 设置 Go 版本
+
+      - name: Build
+        run: GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o myapp-${{ matrix.os }}-${{ matrix.arch }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag: ${{ github.ref }}  # 使用当前推送的标签
+          files: |
+            myapp-linux-amd64
+            myapp-linux-arm64
+            myapp-linux-386
+            myapp-linux-arm
+            myapp-linux-riscv64
+            myapp-linux-loong64
+            myapp-windows-amd64.exe
+            myapp-windows-arm64.exe
+            myapp-windows-386.exe
+            myapp-darwin-amd64
+            myapp-darwin-arm64
+            myapp-darwin-386
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub Token 进行认证
