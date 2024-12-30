@@ -170,7 +170,7 @@ func crackJWT(tokenString, dictFile string) {
 
 	for scanner.Scan() {
 		secret := strings.TrimSpace(scanner.Text())
-		secret := base64.StdEncoding.EncodeToString([]byte(secret))
+		secret = base64.StdEncoding.EncodeToString([]byte(secret))
 		attempts++
 
 		_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
